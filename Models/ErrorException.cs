@@ -1,6 +1,6 @@
 using ExceptionApiHandler.Enums;
 
-namespace ExceptionApiHandler.Exceptions;
+namespace ExceptionApiHandler.Models;
 
 public class ErrorException : Exception
 {
