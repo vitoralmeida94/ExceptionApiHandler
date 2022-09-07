@@ -13,18 +13,33 @@ public static class Startup
         {
             error.Run(async context =>
             {
-                var errorException = context.Features.Get<IExceptionHandlerFeature>().Error as ErrorException;
+                var errorException = context.Features.Get<IExceptionHandlerFeature>().Error;
 
-                context.Response.StatusCode = (int)errorException.ErrorType;
-                context.Response.ContentType = "application/json";
-                
-                await context.Response.WriteAsync(new ErrorDetails
+                if (errorException.GetType() != typeof(ErrorException))
                 {
-                    StatusCode = context.Response.StatusCode,
-                    Message = errorException.Message
-                }.ToString());
+
+                    BuildHttpMessage(context, errorException.Message);
+                }
+                else
+                {
+                    BuildHttpMessage(context, errorException.Message,(int)(errorException as ErrorException).ErrorType);
+                }
+
+                
             });
         });
         
+    }
+
+    private static async void BuildHttpMessage(HttpContext context, string message,int statusCode = 500)
+    {
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsync(new ErrorDetails
+        {
+            StatusCode = context.Response.StatusCode,
+            Message = message
+        }.ToString());
     }
 }
